@@ -1,4 +1,6 @@
 import { motion as Motion } from "framer-motion";
+import { UploadFile } from "@duo-icons/react";
+import appConfig from "../config/app.config";
 
 export default function Hero() {
   return (
@@ -18,7 +20,7 @@ export default function Hero() {
           transition={{ duration: 0.6 }}
         >
           <div className="mb-5 inline-flex items-center rounded-full border border-blue-100 bg-white/90 px-4 py-1.5 text-xs font-semibold tracking-wide text-blue-700 shadow-sm">
-            Compresso • Fast, Free, Simple
+            {appConfig.appName} • Fast, Free, Simple
           </div>
 
           <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-6xl">
@@ -38,20 +40,7 @@ export default function Hero() {
               href="#compressor"
               className="flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-8 py-4 font-semibold text-white shadow-lg shadow-blue-600/35 transition-all hover:bg-blue-700 active:scale-95"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-5 h-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
-                />
-              </svg>
+              <UploadFile className="h-5 w-5" />
               Upload Video
             </a>
 

@@ -1,19 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 import {
-  FaArrowRight,
-  FaCheckCircle,
-  FaCloudUploadAlt,
-  FaDownload,
-  FaFileVideo,
-  FaSlidersH,
-} from "react-icons/fa";
-
-const ACCEPTED_FORMATS = ["mp4", "mov", "avi", "mkv", "webm"];
-const MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024;
-const API_BASE_URL = "/api/v1";
-const COMPRESSION_POLL_INTERVAL_MS = 4000;
-const PROGRESS_DEBOUNCE_MS = 220;
+  CheckCircle,
+  Disk,
+  File,
+  Rocket,
+  Settings,
+  UploadFile,
+} from "@duo-icons/react";
+import appConfig from "../config/app.config";
 
 export default function CompressorPanel() {
   const [file, setFile] = useState(null);
@@ -21,9 +16,9 @@ export default function CompressorPanel() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [compressionProgress, setCompressionProgress] = useState(0);
   const [targetSize, setTargetSize] = useState("");
-  const [targetUnit, setTargetUnit] = useState("MB");
-  const [quality, setQuality] = useState("High");
-  const [resolution, setResolution] = useState("Auto");
+  const [targetUnit, setTargetUnit] = useState(appConfig.defaultTargetUnit);
+  const [quality, setQuality] = useState(appConfig.defaultQuality);
+  const [resolution, setResolution] = useState(appConfig.defaultResolution);
   const [uploadSession, setUploadSession] = useState(null);
   const [resultMeta, setResultMeta] = useState(null);
   const [feedback, setFeedback] = useState("");
@@ -62,13 +57,15 @@ export default function CompressorPanel() {
   const validateAndSetFile = (selectedFile) => {
     const extension = selectedFile.name.split(".").pop()?.toLowerCase();
 
-    if (!extension || !ACCEPTED_FORMATS.includes(extension)) {
-      setFeedback("Unsupported format. Use MP4, MOV, AVI, MKV, or WEBM.");
+    if (!extension || !appConfig.acceptedFormats.includes(extension)) {
+      setFeedback(`Unsupported format. Use ${appConfig.acceptedFormatsLabel}.`);
       return;
     }
 
-    if (selectedFile.size > MAX_FILE_SIZE_BYTES) {
-      setFeedback("This file is larger than 1GB. Choose a smaller file.");
+    if (selectedFile.size > appConfig.maxUploadSizeBytes) {
+      setFeedback(
+        `This file is larger than ${appConfig.maxUploadSizeLabel}. Choose a smaller file.`,
+      );
       return;
     }
 
@@ -109,7 +106,7 @@ export default function CompressorPanel() {
     setUploadProgress(0);
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${API_BASE_URL}/videos/upload`);
+    xhr.open("POST", `${appConfig.apiBaseUrl}/videos/upload`);
 
     xhr.upload.onprogress = (event) => {
       if (!event.lengthComputable) {
@@ -136,7 +133,10 @@ export default function CompressorPanel() {
           setUploadSession(payload.data);
           setUploadProgress(100);
           setPhase("prepare");
-          setTimeout(() => setShowSettingsModal(true), 220);
+          setTimeout(
+            () => setShowSettingsModal(true),
+            appConfig.settingsModalDelayMs,
+          );
           return;
         }
 
@@ -174,11 +174,11 @@ export default function CompressorPanel() {
     progressDebounceRef.current = setTimeout(() => {
       setCompressionProgress(clamped);
       progressDebounceRef.current = null;
-    }, PROGRESS_DEBOUNCE_MS);
+    }, appConfig.progressDebounceMs);
   };
 
   const startCompressionJob = async () => {
-    const response = await fetch(`${API_BASE_URL}/videos/compress`, {
+    const response = await fetch(`${appConfig.apiBaseUrl}/videos/compress`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -221,7 +221,7 @@ export default function CompressorPanel() {
       const run = async () => {
         try {
           const response = await fetch(
-            `${API_BASE_URL}/videos/compress/${jobId}`,
+            `${appConfig.apiBaseUrl}/videos/compress/${jobId}`,
           );
           if (!response.ok) {
             throw new Error("Could not read compression progress.");
@@ -253,13 +253,16 @@ export default function CompressorPanel() {
       };
 
       run();
-      pollIntervalRef.current = setInterval(run, COMPRESSION_POLL_INTERVAL_MS);
+      pollIntervalRef.current = setInterval(
+        run,
+        appConfig.compressionPollIntervalMs,
+      );
     });
   };
 
   const downloadCompressedFile = async (jobId) => {
     const response = await fetch(
-      `${API_BASE_URL}/videos/compress/${jobId}/download`,
+      `${appConfig.apiBaseUrl}/videos/compress/${jobId}/download`,
     );
 
     if (!response.ok) {
@@ -348,16 +351,16 @@ export default function CompressorPanel() {
     setResultMeta(null);
     setShowSettingsModal(false);
     setTargetSize("");
-    setTargetUnit("MB");
-    setQuality("High");
-    setResolution("Auto");
+    setTargetUnit(appConfig.defaultTargetUnit);
+    setQuality(appConfig.defaultQuality);
+    setResolution(appConfig.defaultResolution);
     setFeedback("");
     setTargetSizeError("");
   };
 
   const stats = [
-    "Supports MP4, MOV, AVI, MKV, WEBM",
-    "Up to 1GB per upload",
+    `Supports ${appConfig.acceptedFormatsLabel}`,
+    `Up to ${appConfig.maxUploadSizeLabel} per upload`,
     "No signup required",
   ];
 
@@ -401,19 +404,20 @@ export default function CompressorPanel() {
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                      <FaCloudUploadAlt className="text-3xl" />
+                      <UploadFile className="text-3xl" />
                     </div>
                     <h4 className="text-lg font-bold text-slate-800">
                       Drag and drop your video
                     </h4>
                     <p className="mt-2 text-sm text-slate-500">
-                      MP4, MOV, AVI, MKV, WEBM up to 1GB
+                      {appConfig.acceptedFormatsLabel} up to{" "}
+                      {appConfig.maxUploadSizeLabel}
                     </p>
 
                     <input
                       type="file"
                       className="hidden"
-                      accept=".mp4,.mov,.avi,.mkv,.webm,video/*"
+                      accept={`${appConfig.acceptFileInputValue},video/*`}
                       ref={fileInputRef}
                       onChange={handleFileSelect}
                     />
@@ -421,7 +425,7 @@ export default function CompressorPanel() {
 
                   <div className="rounded-2xl border border-slate-200 bg-white p-5">
                     <h4 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-[0.12em] text-slate-600">
-                      <FaSlidersH />
+                      <Settings />
                       Quick settings before next
                     </h4>
 
@@ -435,9 +439,9 @@ export default function CompressorPanel() {
                           onChange={(e) => setQuality(e.target.value)}
                           className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                         >
-                          <option>Low</option>
-                          <option>Medium</option>
-                          <option>High</option>
+                          {appConfig.qualityOptions.map((option) => (
+                            <option key={option}>{option}</option>
+                          ))}
                         </select>
                       </div>
 
@@ -450,10 +454,9 @@ export default function CompressorPanel() {
                           onChange={(e) => setResolution(e.target.value)}
                           className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                         >
-                          <option>Auto</option>
-                          <option>1080p</option>
-                          <option>720p</option>
-                          <option>480p</option>
+                          {appConfig.resolutionOptions.map((option) => (
+                            <option key={option}>{option}</option>
+                          ))}
                         </select>
                       </div>
                     </div>
@@ -462,7 +465,7 @@ export default function CompressorPanel() {
                       <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
                         <div className="flex items-center gap-3">
                           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-                            <FaFileVideo className="text-lg" />
+                            <File className="text-lg" />
                           </div>
                           <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-slate-800">
@@ -486,7 +489,7 @@ export default function CompressorPanel() {
                       className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 font-semibold text-white transition-all hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
                       Next
-                      <FaArrowRight className="text-sm" />
+                      <Rocket className="text-sm" />
                     </button>
 
                     {uploadSession?.uploadId && (
@@ -589,7 +592,7 @@ export default function CompressorPanel() {
                 className="p-10 text-center md:p-14"
               >
                 <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-green-100 text-green-600">
-                  <FaCheckCircle className="text-5xl" />
+                  <CheckCircle className="text-5xl" />
                 </div>
                 <h3 className="text-3xl font-bold text-slate-800">
                   Compressed File Downloaded
@@ -698,8 +701,9 @@ export default function CompressorPanel() {
                       onChange={(e) => setTargetUnit(e.target.value)}
                       className="rounded-xl border border-slate-200 bg-white px-4 py-3 font-semibold outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     >
-                      <option>MB</option>
-                      <option>GB</option>
+                      {appConfig.targetUnitOptions.map((option) => (
+                        <option key={option}>{option}</option>
+                      ))}
                     </select>
                   </div>
                   {targetSizeError && (
@@ -737,7 +741,7 @@ export default function CompressorPanel() {
                     }
                     className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
                   >
-                    <FaDownload />
+                    <Disk />
                     Save and Download
                   </button>
                 </div>

@@ -1,5 +1,6 @@
 import { motion as Motion } from "framer-motion";
-import { FaVideo } from "react-icons/fa";
+import { Clapperboard } from "@duo-icons/react";
+import appConfig from "../config/app.config";
 
 export default function Splash() {
   return (
@@ -10,8 +11,10 @@ export default function Splash() {
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="flex items-center space-x-4 mb-4"
       >
-        <FaVideo className="text-6xl" />
-        <h1 className="text-4xl font-bold tracking-tight">Compresso</h1>
+        <Clapperboard className="text-6xl" />
+        <h1 className="text-4xl font-bold tracking-tight">
+          {appConfig.appName}
+        </h1>
       </Motion.div>
       <Motion.div
         initial={{ opacity: 0 }}

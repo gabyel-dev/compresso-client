@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@duo-icons/react": "^1.0.1",
     "@tailwindcss/vite": "^4.2.2",
     "duo-icons": "^2.0.1",
     "framer-motion": "^12.38.0",

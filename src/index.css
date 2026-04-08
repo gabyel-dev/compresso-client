@@ -1,52 +1,39 @@
 ﻿@import url("https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Sora:wght@100..800&display=swap");
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --background: #f4f8ff;
-    --surface: #ffffff;
-    --foreground: #0f172a;
-    --muted: #475569;
-    --primary: #2563eb;
-    --primary-foreground: #f8fafc;
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
-  body {
-    margin: 0;
-    min-height: 100vh;
-    background:
-      radial-gradient(
-        circle at 10% 10%,
-        rgba(37, 99, 235, 0.15),
-        transparent 100%
-      ),
-      radial-gradient(
-        circle at 85% 20%,
-        rgba(233, 14, 18, 0.911) transparent 100%
-      ),
-      var(--background);
-    color: var(--foreground);
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-  }
+:root {
+  --background: #f4f8ff;
+  --surface: #ffffff;
+  --foreground: #0f172a;
+  --muted: #475569;
+  --primary: #2563eb;
+  --primary-foreground: #f8fafc;
 }
 
-* {
-  box-sizing: border-box;
-  font-family: "Google Sans", sans-serif;
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+
   background:
     radial-gradient(
       circle at 10% 10%,
       rgba(37, 99, 235, 0.15),
       transparent 100%
     ),
-    radial-gradient(
-      circle at 85% 20%,
-      rgba(233, 14, 18, 0.911) transparent 100%
-    );
+    radial-gradient(circle at 85% 20%, rgb(233, 14, 18) transparent 0%),
+    var(--background);
+  color: var(--foreground);
+
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: "Google Sans", sans-serif;
 }

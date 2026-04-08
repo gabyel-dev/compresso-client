@@ -1,25 +1,25 @@
 import { motion as Motion } from "framer-motion";
-import { FaUpload, FaSlidersH, FaDownload } from "react-icons/fa";
+import { Disk, Settings, UploadFile } from "@duo-icons/react";
+import appConfig from "../config/app.config";
 
 export default function HowItWorks() {
   const steps = [
     {
       title: "Upload video",
-      description:
-        "Select your video file up to 1GB and drag it into our compressor.",
-      icon: <FaUpload className="text-2xl" />,
+      description: `Select your video file up to ${appConfig.maxUploadSizeLabel} and drag it into our compressor.`,
+      icon: <UploadFile className="text-2xl" />,
     },
     {
       title: "Choose settings",
       description:
         "Pick target file size, resolution, and quality to compress specifically for your needs.",
-      icon: <FaSlidersH className="text-2xl" />,
+      icon: <Settings className="text-2xl" />,
     },
     {
       title: "Download file",
       description:
         "Wait for processing to complete and securely download the optimized video.",
-      icon: <FaDownload className="text-2xl" />,
+      icon: <Disk className="text-2xl" />,
     },
   ];
 
@@ -48,7 +48,7 @@ export default function HowItWorks() {
               transition={{ delay: idx * 0.2, duration: 0.5 }}
               className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:-translate-y-1 transition-transform relative"
             >
-              <div className="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-600/30">
+              <div className="w-16 h-16 bg-blue-200 text-blue-800 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-600/30">
                 {step.icon}
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-3">
