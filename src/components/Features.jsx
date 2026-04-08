@@ -46,7 +46,7 @@ export default function Features() {
               key={idx}
               className="flex gap-4 p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-lg transition-shadow"
             >
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
                 {feature.icon}
               </div>
               <div>

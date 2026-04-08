@@ -17,11 +17,6 @@ const parseCsv = (value, fallback) => {
   return items.length > 0 ? items : fallback;
 };
 
-const normalizeApiBaseUrl = (value, fallback) => {
-  const resolved = String(value ?? fallback).trim() || fallback;
-  return resolved.replace(/\/+$/, "");
-};
-
 const formatUploadSizeLabel = (sizeMB) => {
   if (sizeMB % 1024 === 0) {
     return `${sizeMB / 1024}GB`;
@@ -59,7 +54,7 @@ const appConfig = {
     import.meta.env.VITE_SPLASH_DURATION_MS,
     2000,
   ),
-  apiBaseUrl: normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL, "/api/v1"),
+  apiBaseUrl: "/api/v1",
   acceptedFormats,
   acceptedFormatsLabel: acceptedFormats
     .map((item) => item.toUpperCase())

@@ -6,7 +6,7 @@ export default function Hero() {
   return (
     <section
       id="home"
-      className="relative w-full flex-shrink-0 overflow-hidden px-4 pb-16 pt-24"
+      className="relative w-full shrink-0 overflow-hidden px-4 pb-16 pt-24"
     >
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -left-20 top-6 h-52 w-52 rounded-full bg-cyan-300/40 blur-3xl" />
