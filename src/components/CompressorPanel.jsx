@@ -11,8 +11,7 @@ import {
 
 const ACCEPTED_FORMATS = ["mp4", "mov", "avi", "mkv", "webm"];
 const MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024;
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api/v1";
+const API_BASE_URL = "/api/v1";
 const COMPRESSION_POLL_INTERVAL_MS = 4000;
 const PROGRESS_DEBOUNCE_MS = 220;
 
