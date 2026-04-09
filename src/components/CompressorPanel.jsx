@@ -21,6 +21,9 @@ export default function CompressorPanel() {
   const [resolution, setResolution] = useState(appConfig.defaultResolution);
   const [uploadSession, setUploadSession] = useState(null);
   const [resultMeta, setResultMeta] = useState(null);
+  const [downloadJobId, setDownloadJobId] = useState(null);
+  const [downloadError, setDownloadError] = useState("");
+  const [isRetryingDownload, setIsRetryingDownload] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [targetSizeError, setTargetSizeError] = useState("");
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -73,6 +76,8 @@ export default function CompressorPanel() {
     setFile(selectedFile);
     setUploadSession(null);
     setResultMeta(null);
+    setDownloadJobId(null);
+    setDownloadError("");
     setPhase("prepare");
   };
 
@@ -327,17 +332,44 @@ export default function CompressorPanel() {
     setPhase("compressing");
     setCompressionProgress(0);
     setFeedback("");
+    setDownloadError("");
+    setIsRetryingDownload(false);
 
     try {
       const jobId = await startCompressionJob();
+      setDownloadJobId(jobId);
       await pollCompressionStatus(jobId);
-      await downloadCompressedFile(jobId);
+
+      try {
+        await downloadCompressedFile(jobId);
+        setDownloadError("");
+      } catch (error) {
+        setDownloadError(error.message || "Download failed. Please try again.");
+      }
 
       setPhase("done");
     } catch (error) {
       clearPoll();
       setFeedback(error.message || "Compression failed. Please try again.");
       setPhase("prepare");
+    }
+  };
+
+  const retryDownload = async () => {
+    if (!downloadJobId) {
+      setDownloadError("Download session expired. Compress again to retry.");
+      return;
+    }
+
+    setIsRetryingDownload(true);
+    setDownloadError("");
+
+    try {
+      await downloadCompressedFile(downloadJobId);
+    } catch (error) {
+      setDownloadError(error.message || "Download failed. Please try again.");
+    } finally {
+      setIsRetryingDownload(false);
     }
   };
 
@@ -349,6 +381,9 @@ export default function CompressorPanel() {
     setCompressionProgress(0);
     setUploadSession(null);
     setResultMeta(null);
+    setDownloadJobId(null);
+    setDownloadError("");
+    setIsRetryingDownload(false);
     setShowSettingsModal(false);
     setTargetSize("");
     setTargetUnit(appConfig.defaultTargetUnit);
@@ -396,9 +431,9 @@ export default function CompressorPanel() {
                   )}
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-6 md:grid-cols-2  ">
                   <div
-                    className="cursor-pointer rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/50 p-8 text-center transition-colors hover:bg-blue-50"
+                    className="cursor-pointer rounded-2xl border-2 justify-center flex flex-col items-center h-auto border-dashed border-blue-200 bg-blue-50/50 p-8 text-center transition-colors hover:bg-blue-50"
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={handleFileDrop}
                     onClick={() => fileInputRef.current?.click()}
@@ -595,12 +630,21 @@ export default function CompressorPanel() {
                   <CheckCircle className="text-5xl" />
                 </div>
                 <h3 className="text-3xl font-bold text-slate-800">
-                  Compressed File Downloaded
+                  {downloadError
+                    ? "Compression Complete"
+                    : "Compressed File Downloaded"}
                 </h3>
                 <p className="mx-auto mt-3 max-w-lg text-slate-600">
-                  Compression completed and your smaller file was downloaded.
-                  You can compress another one anytime.
+                  {downloadError
+                    ? "Compression finished, but download failed. Retry below without recompressing."
+                    : "Compression completed and your smaller file was downloaded. You can compress another one anytime."}
                 </p>
+
+                {downloadError && (
+                  <p className="mx-auto mt-3 max-w-lg text-sm font-medium text-rose-600">
+                    {downloadError}
+                  </p>
+                )}
 
                 <div className="mx-auto mt-8 max-w-md rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left">
                   <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
@@ -631,6 +675,15 @@ export default function CompressorPanel() {
                 </div>
 
                 <div className="mt-6 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                  {downloadError && (
+                    <button
+                      onClick={retryDownload}
+                      disabled={isRetryingDownload}
+                      className="w-full rounded-xl border border-blue-200 bg-blue-50 px-8 py-4 font-bold text-blue-700 transition-all hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                    >
+                      {isRetryingDownload ? "Retrying..." : "Retry Download"}
+                    </button>
+                  )}
                   <button
                     onClick={resetFlow}
                     className="w-full rounded-xl bg-slate-900 px-8 py-4 font-bold text-white transition-all hover:bg-slate-800 sm:w-auto"
